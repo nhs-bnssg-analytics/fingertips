@@ -1,0 +1,521 @@
+---
+title: "fingertipscharts"
+format: 
+  pptx:
+    reference-doc: template.pptx
+editor: visual
+---
+
+```{r}
+#| label: libraries
+#| warning: false
+#| echo: false
+#| message: false
+
+source(here::here("R/00_libraries.R"))
+```
+
+```{r}
+#| label: data
+#| echo: false
+#| cache: true
+df_overarching_phof <- fingertipsR::fingertips_data(
+        DomainID = 1000049,
+        AreaTypeID = 402,
+        rank = TRUE,
+        proxy_settings = "none"
+)
+
+df_populations_all <- fingertips_data(
+  IndicatorID = 92708,
+  AreaTypeID = 402,
+  proxy_settings = "none"
+)
+
+```
+
+```{r}
+#| label: munging
+#| echo: false
+
+### Overview
+
+region_code <- "E12000008" 
+top_names <- df_overarching_phof |> 
+  filter(ParentCode == region_code) |> 
+  distinct(AreaCode, AreaName) |> 
+  head(6) |> 
+  pull(AreaName) |> 
+  unique()
+
+region_name <- df_overarching_phof |> 
+  filter(AreaCode == region_code) |> 
+  pull(AreaName) |> 
+  unique()
+
+top_names <- c(
+  region_name, top_names
+)
+
+indicatorIDs <- c(
+  90362,
+  90366,
+  93562,
+  92901,
+  93505,
+  91102
+)
+
+df_overview <- df_overarching_phof |> 
+  filter(AreaName %in% top_names,
+         IndicatorID %in% indicatorIDs) |> 
+  group_by(IndicatorID) |> 
+  filter(TimeperiodSortable == max(TimeperiodSortable),
+         Sex == "Female") |> 
+  ungroup() |> 
+  mutate(
+    Value = round(Value, 2)
+  )
+
+### Compare indicators
+
+df_compare_indicators <- df_overarching_phof %>%
+  filter(IndicatorName %in% c("A01a - Healthy life expectancy at birth",
+                              "A01b - Life expectancy at birth")) %>%
+  group_by(IndicatorName) |> 
+  filter(TimeperiodSortable == max(TimeperiodSortable),
+         Sex == "Female",
+         !is.na(Value)) |> 
+  ungroup() |> 
+  select(IndicatorName, AreaName, Value) %>%
+  tidyr::pivot_wider(
+    names_from = IndicatorName,
+    values_from = Value)
+
+### Map
+ordered_levels <- c("Better",
+                    "Similar",
+                    "Worse",
+                    "Not compared")
+
+
+df_map <- df_overarching_phof %>%
+  filter(IndicatorName == "A01a - Healthy life expectancy at birth") %>%
+  group_by(IndicatorName) |> 
+  filter(TimeperiodSortable == max(TimeperiodSortable),
+         Sex == "Female",
+         !is.na(Value)) |> 
+  ungroup() %>%
+  rename(Significance = "ComparedtoEnglandvalueorpercentiles") |> 
+  mutate(Significance =
+           factor(Significance,
+                  levels = ordered_levels))
+
+ons_api <- "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/Counties_and_Unitary_Authorities_December_2021_EN_BUC/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson"
+
+
+### trend
+
+df_trend <- df_overarching_phof |> 
+  filter(
+    IndicatorID == 90362,
+    Sex == "Female") |> 
+  rename(Significance = "ComparedtoEnglandvalueorpercentiles")
+
+### compare_areas
+
+df_compare_areas <- df_overarching_phof |> 
+  filter(IndicatorID == 90362,
+         Sex == "Female",
+         AreaName %in% top_names) |> 
+  filter(TimeperiodSortable == max(TimeperiodSortable)) |> 
+  rename(Significance = "ComparedtoRegionvalueorpercentiles") |> 
+  mutate(Significance =
+           factor(Significance,
+                  levels = ordered_levels))
+
+ordered_levels <- c("Better",
+                    "Similar",
+                    "Worse",
+                    "Not compared")
+
+### area_profiles
+
+df_area_profiles <- df_overarching_phof |> 
+  group_by(IndicatorID) |> 
+  filter(
+    IndicatorID %in% indicatorIDs,
+    TimeperiodSortable == max(TimeperiodSortable),
+    Sex == "Female"
+  ) |> 
+  ungroup() |> 
+  rename(Significance = "ComparedtoEnglandvalueorpercentiles")
+
+### population
+
+df_population <- df_populations_all |> 
+  filter(TimeperiodSortable == max(TimeperiodSortable),
+         Sex %in% c("Male", "Female"),
+         Age != "All ages") |> 
+  mutate(
+    Age = factor(Age,
+                 levels = c(
+                   "0-4 yrs", "5-9 yrs", "10-14 yrs",
+                   "15-19 yrs", "20-24 yrs", "25-29 yrs",
+                   "30-34 yrs", "35-39 yrs", "40-44 yrs",
+                   "45-49 yrs", "50-54 yrs", "55-59 yrs",
+                   "60-64 yrs", "65-69 yrs", "70-74 yrs",
+                   "75-79 yrs", "80-84 yrs", "85-89 yrs",
+                   "90+ yrs"   
+                 ))
+  )
+
+### box_plots
+
+df_box_plots <- df_overarching_phof |> 
+  filter(IndicatorID == 90362,
+         Sex == "Female",
+         AreaType == "Counties & UAs (from Apr 2021)")
+
+
+
+```
+
+
+# Common functions
+
+## overview()
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+```{r}
+#| label: overview-code
+#| eval: true
+#| echo: true
+p <- overview(
+  data = df_overview,
+  area = AreaName,
+  indicator = IndicatorName,
+  value = Value,
+  fill = ComparedtoRegionvalueorpercentiles,
+  timeperiod = Timeperiod,
+  top_areas = top_names, 
+  wrap_length = 40,
+  value_label_size = 0.7   
+)
+
+```
+
+
+:::
+
+::: {.column width="60%"}
+
+```{r}
+#| label: overview
+#| echo: false
+
+p
+```
+
+:::
+
+::::
+
+## compare_indicators()
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+```{r}
+#| label: compare_indicators-code
+#| eval: true
+#| echo: true
+p <- compare_indicators(
+  data = df_compare_indicators,
+  x = `A01a - Healthy life expectancy at birth`,
+  y = `A01b - Life expectancy at birth`,
+  xlab = "Healthy life expectancy at birth (female)",
+  ylab = "Life expectancy at birth (female)",
+  highlight = c("Leeds", "Hertfordshire"),
+  area = AreaName,
+  add_R2 = TRUE)
+
+```
+
+
+:::
+
+::: {.column width="60%"}
+
+```{r}
+#| label: compare_indicators
+#| echo: false
+
+p
+```
+
+:::
+
+::::
+
+
+## map()
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+```{r}
+#| label: map-code
+#| eval: true
+#| echo: true
+p <- fingertipscharts::map(
+  data = df_map,
+  ons_api = ons_api,
+  area_code = AreaCode,
+  fill = Significance,
+  title = "Healthy life expectancy at birth (female)",
+  subtitle = "Compared to England",
+  copyright_size = 3
+)
+
+```
+
+
+:::
+
+::: {.column width="60%"}
+
+```{r}
+#| label: map
+#| echo: false
+#| fig-width: 6
+#| fig-height: 8
+
+p
+```
+
+:::
+
+::::
+
+
+## trend()
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+```{r}
+#| label: trend-code
+#| eval: true
+#| echo: true
+p <- trends(
+  data = df_trend,
+  timeperiod = Timeperiod,
+  value = Value,
+  area = AreaName,
+  comparator = "England",
+  area_name = "Blackburn with Darwen",
+  fill = Significance,
+  lowerci = LowerCI95.0limit,
+  upperci = UpperCI95.0limit,
+  title = "Healthy life expectancy at birth (female)",
+  subtitle = "Blackburn with Darwen compared with England",
+  xlab = "Year",
+  ylab = "Years"
+)
+
+```
+
+
+:::
+
+::: {.column width="60%"}
+
+```{r}
+#| label: trend
+#| echo: false
+
+p
+```
+
+:::
+
+::::
+
+## compare_areas()
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+```{r}
+#| label: compare-areas-code
+#| eval: true
+#| echo: true
+p <- compare_areas(
+  data = df_compare_areas,
+  area = AreaName,
+  value = Value,
+  fill = Significance,
+  lowerci = LowerCI95.0limit,
+  upperci = UpperCI95.0limit,
+  order = "desc",
+  top_areas = "South East region",
+  title = "Healthy life expectancy at birth (female)"
+)
+
+```
+
+
+:::
+
+::: {.column width="60%"}
+
+```{r}
+#| label: compare-areas
+#| echo: false
+
+p
+```
+
+:::
+
+::::
+
+## area_profiles()
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+```{r}
+#| label: area-profiles-code
+#| eval: true
+#| echo: true
+p <- area_profiles(
+  data = df_area_profiles,
+  value = Value,
+  count = Count,
+  area_code = AreaCode,
+  local_area_code = "E06000008",
+  indicator = IndicatorName,
+  timeperiod = Timeperiod,
+  trend = Trend,
+  polarity = Polarity,
+  significance = Significance,
+  area_type = AreaType,
+  cols = "fingertips",
+  median_line_area_code = "E92000001",
+  comparator_area_code = "E12000002",
+  datatable = FALSE,
+  relative_point_size = 4
+  )
+
+```
+
+
+:::
+
+::: {.column width="60%"}
+
+```{r}
+#| label: area-profiles
+#| echo: false
+#| fig-width: 7
+#| fig-height: 7
+
+p
+```
+
+:::
+
+::::
+
+## population()
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+```{r}
+#| label: population-code
+#| eval: true
+#| echo: true
+p <- population(
+  data = df_population,
+  value = Value,
+  sex = Sex,
+  age = Age,
+  area = AreaName,
+  area_name = "Blackburn with Darwen",
+  comparator_1 = "England",
+  comparator_2 = "North West region",
+  title = "Age Profile of Blackburn with Darwen compared with\nNorth West Region and England",
+  subtitle = "In 2021",
+  xlab = "% of total population"
+)
+
+```
+
+
+:::
+
+::: {.column width="60%"}
+
+```{r}
+#| label: population
+#| echo: false
+#| fig-width: 6
+#| fig-height: 7
+p
+```
+
+:::
+
+::::
+
+
+## box_plots()
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+```{r}
+#| label: box-plots-code
+#| eval: true
+#| echo: true
+p <- box_plots(
+  data = df_box_plots,
+  timeperiod = Timeperiod,
+  value = Value,
+  title = "Range of healthy life expectancies for local authorities",
+  subtitle = "Female",
+  ylab = "Years"
+)
+
+
+```
+
+
+:::
+
+::: {.column width="60%"}
+
+```{r}
+#| label: box-plots
+#| echo: false
+
+p
+```
+
+:::
+
+::::
+
