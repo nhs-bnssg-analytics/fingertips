@@ -1,0 +1,22 @@
+Untitled
+================
+
+## Background
+
+The contents of this repo were presented at the Data Science Professions
+meeting on 2023-03-07.
+
+## Cloning
+
+To clone this repo use:
+
+    git clone https://github.com/DataS-DHSC/fingertipscharts_presentation.git
+
+## Recreating the presentation
+
+On starting the project, `renv` should initialise and offer you help to
+recreate the package environment.
+
+Within the outputs folder, there is a
+`fingertipsR and fingertipscharts.qmd` file. Open this in RStudio and
+Render it. It should provide the images presented at the meeting above.
