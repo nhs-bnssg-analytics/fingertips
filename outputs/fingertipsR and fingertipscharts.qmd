@@ -1,9 +1,11 @@
 ---
 title: "fingertipscharts"
+subtitle: "Fingertips data huddle"
+author: "Seb Fox"
 format: 
   pptx:
-    reference-doc: template.pptx
-editor: visual
+    reference-doc: bnssg.pptx
+editor: source
 ---
 
 ```{r}
@@ -21,15 +23,14 @@ source(here::here("R/00_libraries.R"))
 #| cache: true
 df_overarching_phof <- fingertipsR::fingertips_data(
         DomainID = 1000049,
-        AreaTypeID = 402,
-        rank = TRUE,
-        proxy_settings = "none"
+        AreaTypeID = 502,
+        ParentAreaTypeID = 6,
+        rank = TRUE
 )
 
 df_populations_all <- fingertips_data(
   IndicatorID = 92708,
-  AreaTypeID = 402,
-  proxy_settings = "none"
+  AreaTypeID = 402
 )
 
 ```
@@ -175,21 +176,18 @@ df_population <- df_populations_all |>
 df_box_plots <- df_overarching_phof |> 
   filter(IndicatorID == 90362,
          Sex == "Female",
-         AreaType == "Counties & UAs (from Apr 2021)")
+         AreaType == "Counties & UAs (from Apr 2023)")
 
 
 
 ```
 
-
 # Common functions
 
 ## overview()
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="40%"}
-
 ```{r}
 #| label: overview-code
 #| eval: true
@@ -207,29 +205,22 @@ p <- overview(
 )
 
 ```
-
-
 :::
 
 ::: {.column width="60%"}
-
 ```{r}
 #| label: overview
 #| echo: false
 
 p
 ```
-
 :::
-
-::::
+:::
 
 ## compare_indicators()
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="40%"}
-
 ```{r}
 #| label: compare_indicators-code
 #| eval: true
@@ -245,30 +236,22 @@ p <- compare_indicators(
   add_R2 = TRUE)
 
 ```
-
-
 :::
 
 ::: {.column width="60%"}
-
 ```{r}
 #| label: compare_indicators
 #| echo: false
 
 p
 ```
-
 :::
-
-::::
-
+:::
 
 ## map()
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="40%"}
-
 ```{r}
 #| label: map-code
 #| eval: true
@@ -284,12 +267,9 @@ p <- fingertipscharts::map(
 )
 
 ```
-
-
 :::
 
 ::: {.column width="60%"}
-
 ```{r}
 #| label: map
 #| echo: false
@@ -298,18 +278,13 @@ p <- fingertipscharts::map(
 
 p
 ```
-
 :::
-
-::::
-
+:::
 
 ## trend()
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="40%"}
-
 ```{r}
 #| label: trend-code
 #| eval: true
@@ -331,29 +306,22 @@ p <- trends(
 )
 
 ```
-
-
 :::
 
 ::: {.column width="60%"}
-
 ```{r}
 #| label: trend
 #| echo: false
 
 p
 ```
-
 :::
-
-::::
+:::
 
 ## compare_areas()
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="40%"}
-
 ```{r}
 #| label: compare-areas-code
 #| eval: true
@@ -371,29 +339,22 @@ p <- compare_areas(
 )
 
 ```
-
-
 :::
 
 ::: {.column width="60%"}
-
 ```{r}
 #| label: compare-areas
 #| echo: false
 
 p
 ```
-
 :::
-
-::::
+:::
 
 ## area_profiles()
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="40%"}
-
 ```{r}
 #| label: area-profiles-code
 #| eval: true
@@ -418,12 +379,9 @@ p <- area_profiles(
   )
 
 ```
-
-
 :::
 
 ::: {.column width="60%"}
-
 ```{r}
 #| label: area-profiles
 #| echo: false
@@ -432,17 +390,13 @@ p <- area_profiles(
 
 p
 ```
-
 :::
-
-::::
+:::
 
 ## population()
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="40%"}
-
 ```{r}
 #| label: population-code
 #| eval: true
@@ -462,12 +416,9 @@ p <- population(
 )
 
 ```
-
-
 :::
 
 ::: {.column width="60%"}
-
 ```{r}
 #| label: population
 #| echo: false
@@ -475,18 +426,13 @@ p <- population(
 #| fig-height: 7
 p
 ```
-
 :::
-
-::::
-
+:::
 
 ## box_plots()
 
-:::: {.columns}
-
+::: columns
 ::: {.column width="40%"}
-
 ```{r}
 #| label: box-plots-code
 #| eval: true
@@ -502,20 +448,14 @@ p <- box_plots(
 
 
 ```
-
-
 :::
 
 ::: {.column width="60%"}
-
 ```{r}
 #| label: box-plots
 #| echo: false
 
 p
 ```
-
 :::
-
-::::
-
+:::
