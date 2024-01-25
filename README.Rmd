@@ -9,14 +9,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Background
 
-The contents of this repo were presented at the Data Science Professions meeting on 2023-03-07.
+The contents of this repo were presented at various Huddles in February 2024 to BNSSG colleagues.
 
 ## Cloning
 
 To clone this repo use:
 
 ```
-git clone https://github.com/DataS-DHSC/fingertipscharts_presentation.git
+git clone https://github.com/nhs-bnssg-analytics/fingertips.git
 ```
 
 ## Recreating the presentation
