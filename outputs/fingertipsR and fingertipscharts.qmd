@@ -116,7 +116,7 @@ The structure of the data required for `fingertipscharts` is the same as that th
 #| echo: false
 #| cache: true
 df_overarching_phof <- fingertipsR::fingertips_data(
-        DomainID = 1000049,
+        DomainID = 1938132696,
         AreaTypeID = 502,
         ParentAreaTypeID = 6,
         rank = TRUE
@@ -153,12 +153,11 @@ top_names <- c(
 )
 
 indicatorIDs <- c(
-  90362,
   90366,
-  93562,
-  92901,
-  93505,
-  91102
+  108,
+  40401,
+  40501,
+  41001
 )
 
 df_overview <- df_overarching_phof |> 
@@ -175,8 +174,8 @@ df_overview <- df_overarching_phof |>
 ### Compare indicators
 
 df_compare_indicators <- df_overarching_phof %>%
-  filter(IndicatorName %in% c("A01a - Healthy life expectancy at birth",
-                              "A01b - Life expectancy at birth")) %>%
+  filter(IndicatorName %in% c("Life expectancy at birth",
+                              "Under 75 mortality rate from all causes")) %>%
   group_by(IndicatorName) |> 
   filter(TimeperiodSortable == max(TimeperiodSortable),
          Sex == "Female",
@@ -195,7 +194,7 @@ ordered_levels <- c("Better",
 
 
 df_map <- df_overarching_phof %>%
-  filter(IndicatorName == "A01a - Healthy life expectancy at birth") %>%
+  filter(IndicatorName == "Life expectancy at birth") %>%
   group_by(IndicatorName) |> 
   filter(TimeperiodSortable == max(TimeperiodSortable),
          Sex == "Female",
@@ -213,14 +212,14 @@ ons_api <- "https://services1.arcgis.com/ESMARspQHYMw9BZ9/arcgis/rest/services/C
 
 df_trend <- df_overarching_phof |> 
   filter(
-    IndicatorID == 90362,
+    IndicatorID == 90366,
     Sex == "Female") |> 
   rename(Significance = "ComparedtoEnglandvalueorpercentiles")
 
 ### compare_areas
 
 df_compare_areas <- df_overarching_phof |> 
-  filter(IndicatorID == 90362,
+  filter(IndicatorID == 90366,
          Sex == "Female",
          AreaName %in% top_names) |> 
   filter(TimeperiodSortable == max(TimeperiodSortable)) |> 
@@ -268,7 +267,7 @@ df_population <- df_populations_all |>
 ### box_plots
 
 df_box_plots <- df_overarching_phof |> 
-  filter(IndicatorID == 90362,
+  filter(IndicatorID == 90366,
          Sex == "Female",
          AreaType == "Counties & UAs (from Apr 2023)")
 
@@ -321,10 +320,10 @@ p
 #| echo: true
 p <- compare_indicators(
   data = df_compare_indicators,
-  x = `A01a - Healthy life expectancy at birth`,
-  y = `A01b - Life expectancy at birth`,
-  xlab = "Healthy life expectancy at birth (female)",
-  ylab = "Life expectancy at birth (female)",
+  x = `Life expectancy at birth`,
+  y = `Under 75 mortality rate from all causes`,
+  xlab = "Life expectancy at birth (female)",
+  ylab = "Under 75 mortality rate from all causes (female)",
   highlight = c("Leeds", "Hertfordshire"),
   area = AreaName,
   add_R2 = TRUE)
@@ -535,7 +534,7 @@ p <- box_plots(
   data = df_box_plots,
   timeperiod = Timeperiod,
   value = Value,
-  title = "Range of healthy life expectancies for local authorities",
+  title = "Distribution of life expectancies for local authorities",
   subtitle = "Female",
   ylab = "Years"
 )
@@ -557,3 +556,6 @@ p
 ## Further resources
 
 * [This GitHub repo](https://github.com/nhs-bnssg-analytics/fingertips)
+* `fingertipsR` [workbook](https://github.com/nhs-bnssg-analytics/fingertips/blob/master/R/01_fingertipsR_workbook.R)
+* `fingertipscharts` [workbook](https://github.com/nhs-bnssg-analytics/fingertips/blob/master/R/02_fingertipscharts_workbook.R)
+* [`fingertips`](https://docs.ropensci.org/fingertipsR/)
