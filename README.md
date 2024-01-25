@@ -1,4 +1,4 @@
-fingertipscharts presentation
+fingertipsR and fingertipscharts presentation
 ================
 
 ## Background

@@ -1,5 +1,5 @@
 ---
-title: "fingertipscharts presentation"
+title: "fingertipsR and fingertipscharts presentation"
 output: github_document
 ---
 
