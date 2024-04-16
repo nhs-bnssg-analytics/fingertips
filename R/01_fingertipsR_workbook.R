@@ -1,10 +1,14 @@
 
+
+
 # Libraries ---------------------------------------------------------------
 
 if (!require(dplyr)) install.packages("dplyr")
 
 # Note, fingertipsR is not on CRAN and won't be for the foreseeable future
-if (!require(fingertipsR)) install.packages("fingertipsR", repos = "https://dev.ropensci.org")
+if (!require(fingertipsR)) install.packages("fingertipsR", 
+                                            repos = "https://dev.ropensci.org",
+                                            dependencies = "Suggests")
 
 
 # Starting at the end: fingertips_data() ----------------------------------

@@ -559,3 +559,4 @@ p
 * `fingertipsR` [workbook](https://github.com/nhs-bnssg-analytics/fingertips/blob/master/R/01_fingertipsR_workbook.R)
 * `fingertipscharts` [workbook](https://github.com/nhs-bnssg-analytics/fingertips/blob/master/R/02_fingertipscharts_workbook.R)
 * [`fingertips`](https://docs.ropensci.org/fingertipsR/)
+* [Fingertips webinar series from OHID](https://www.tickettailor.com/events/dhsc2)
