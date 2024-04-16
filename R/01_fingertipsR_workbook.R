@@ -16,8 +16,9 @@ if (!require(fingertipsR)) install.packages("fingertipsR",
 
 ## Run the following lines
 ## (hint: you can move your cursor to the line of code you want to execute, and press Ctrl + Shift + Enter to run it)
-df <- fingertips_data(IndicatorID = 90603,
-                      AreaTypeID = 221)
+df <- fingertips_data(IndicatorID = 219,
+                      AreaTypeID = 221,
+                      ParentAreaTypeID = 223)
 View(df)
 
 ## Question: do the number of records make sense to you? (for info, there are 42 ICBs and 7 NHS regions)
@@ -31,16 +32,16 @@ table(df$Timeperiod, df$AreaType)
 # 3. Use the indicators() function and choose it programmatically
 
 ## Go to the fingertips website and navigate to;
-## Mental Health --> Severe Metal Illness -- > Start --> Topic = Quality and outcomes -- > Data view = Definitions --> Select the indicator
+## Cardiovascular Disease --> Cardiovascular Disease -- > Start --> Topic = Risk factors -- > Data view = Definitions --> Select the indicator
 
 
-## Execute the select_indicators() function and locate the Record of a BP check in the last 12 months for patients on the MH register (denominator incl. PCAs) indicator using the search feature (then click Done)
+## Execute the select_indicators() function and locate the  Hypertension: QOF prevalence indicator using the search feature (then click Done)
 select_indicators()
 
 ## If confident with filtering data, use the indicators() function to subset the dataset for the IndicatorID you've just discovered
 # Notice how the indicator appears in multiple different profiles
 indicators() %>% 
-  filter(IndicatorID == 90603)
+  filter(IndicatorID == 219)
 
 
 
@@ -56,26 +57,26 @@ area_types() %>%
 # 1. Through the website
 # 2. indicator_areatypes() function
 
-## Go to the fingertips website, where you were for Record of a BP check in the last 12 months for patients on the MH register (denominator incl. PCAs) and click on Trends: https://fingertips.phe.org.uk/profile-group/mental-health/profile/severe-mental-illness/data#page/4/gid/8000039/pat/159/par/K02000001/ati/15/are/E92000001/iid/90603/age/1/sex/4/cat/-1/ctp/-1/yrr/1/cid/4/tbm/1
+## Go to the fingertips website, where you were for Hypertension: QOF prevalence and click on Trends: https://fingertips.phe.org.uk/profile-group/cardiovascular-disease-diabetes-kidney-disease/profile/cardiovascular/data#page/4/gid/1938133106/pat/159/par/K02000001/ati/15/are/E92000001/iid/219/age/1/sex/4/cat/-1/ctp/-1/yrr/1/cid/4/tbm/1
 ## Try clicking on each of the different options in the Geography dropdown - notice, not all of them are available
 
 
 
 ## Now try using the indicator_areatypes() function and seeing what other area types are available for that indicator
 # Notice there are many more AreaTypeIDs than the website offers. That's because this same indicator might be in a different profile/domain which has a different geographical focus
-indicator_areatypes(IndicatorID = 90603) %>% 
+indicator_areatypes(IndicatorID = 219) %>% 
   left_join(area_types(), by = "AreaTypeID") %>%
   distinct(IndicatorID, AreaTypeID, AreaTypeName) %>% 
   View()
 
 # You now have enough information to get some data
-## Using the fingertips_data() function, export data for Record of a BP check in the last 12 months for patients on the MH register (denominator incl. PCAs) for ICBs
-df <- fingertips_data(IndicatorID = 90603,
+## Using the fingertips_data() function, export data for Hypertension: QOF prevalence for ICBs
+df <- fingertips_data(IndicatorID = 219,
                       AreaTypeID = 221)
 
 ## What happens if you change the AreaTypeID to Upper tier local authorities (post 4/23) (use area_types() to find out the correct AreaTypeID)?
 ## Do you understand why you get the number of records that are returned?
-df <- fingertips_data(IndicatorID = 90603,
+df <- fingertips_data(IndicatorID = 219,
                       AreaTypeID = 502)
 nrow(df)
 
@@ -91,14 +92,14 @@ area_types() %>%
 ## Execute this line of code and inspect the different AreaTypes that are in the data:
 # Note, each indicator-area type combination has a default parent area type
 df <- fingertips_data(IndicatorID = 91337,
-                      AreaTypeID = 165) # CCGs (2019/20)
+                      AreaTypeID = 167) # CCGs (2021/22)
 View(df)
 table(df$AreaType)
 
 ## Now execute this code and compare the AreaTypes in what is returned:
 df <- fingertips_data(IndicatorID = 91337,
-                      AreaTypeID = 165, # CCGs (2019/20)
-                      ParentAreaTypeID = 219) 
+                      AreaTypeID = 167, # CCGs (2021/22)
+                      ParentAreaTypeID = 220) 
 View(df)
 table(df$AreaType)
 
@@ -155,7 +156,6 @@ View(df)
 ## Repeat the query above, but include the argument url_only = TRUE
 df <- fingertips_data(IndicatorID = 90603,
                       AreaTypeID = 221,
-                      rank = TRUE,
                       url_only = TRUE)
 
 ## Copy and paste that url into a web browser to see if there is data provided by the API
@@ -163,19 +163,6 @@ df <- fingertips_data(IndicatorID = 90603,
 
 
 # Other useful functions --------------------------------------------------
-
-# There are two other useful functions for adding context to your analysis; deprivation_decile() and nearest_neighbours()
-
-# nearest_neighbours() provides a character vectors of area codes that are defined as similar to a given area code by a particular measure.
-# Similar areas can be used for benchmarking
-
-## Look at the documentation for the nearest_neighbours function
-?nearest_neighbours
-
-## Find the most similar CCGs to NHS Barking and Dagenham CCG (E38000004) based on NHS England's similar CCG explorer tool (use AreaTypeID = 166)
-nearest_neighbours(AreaCode = "E38000004",
-                   AreaTypeID = 166)
-
 
 # deprivation_decile() applies the Indices of Multiple Deprivation (produced by the Department of Communities and Local Government) to each area code
 
